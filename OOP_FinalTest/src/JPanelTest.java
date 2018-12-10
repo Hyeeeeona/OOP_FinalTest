@@ -1,17 +1,34 @@
 
+import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+
+
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.URL;
+import javax.imageio.ImageIO;
 
 public class JPanelTest extends JFrame {
 	public mainPanel mainpn = null;
@@ -120,8 +137,76 @@ class mainPanel extends JPanel {
 }
 
 class JPanelEventInfo extends JPanel {
+	private JPanelTest win;
+
 	public JPanelEventInfo(JPanelTest win, EventInfo info) {
+		this.win = win;
+		setLayout(null);
 		
+		JLabel name = new JLabel(info.name);
+		JLabel introduce = new JLabel("소개 : " + info.introduce);
+		JLabel telephone = new JLabel("전화번호 : " + info.telephone);
+		JLabel address = new JLabel("주소 : " + info.address);
+		JLabel category = new JLabel(info.category);
+		JLabel ceo = new JLabel("대표 : " + info.ceo);
+		
+		System.out.println(info.name + " " + info.introduce + " ");
+		System.out.println(info.imgUrl);
+		Image img = null;
+		URL url;
+		try {
+			url = new URL(info.imgUrl);
+			img = ImageIO.read(url);
+
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ImageIcon imgIcon = new ImageIcon(img);
+		JLabel labelImg = new JLabel(imgIcon);
+		/*
+		add(labelImg);
+		add(name);
+		add(telephone);
+		add(address);
+		add(ceo);
+		add(introduce);
+		labelImg.setBounds(0, 20, 100, 100);
+		labelImg.setBackground(Color.BLACK);
+		name.setBounds(10, 300, 400, 50);
+		telephone.setBounds(10, 360, 400, 50);
+		address.setBounds(10, 420, 400, 50);
+		ceo.setBounds(10, 480, 400, 50);
+		introduce.setBounds(10, 540, 400, 50 );
+		*/
+		labelImg.setBounds(0, 20, 400, 150);
+		add(labelImg);
+
+		introduce.setText("<html><p style=\"width:300px\">" + (info.introduce == null ? "" : info.introduce) + "</p></html>");
+
+		JLabel p = new JLabel();
+		
+		p.setText("<html><p style=\"width:300px\"><br>" + (info.name == null ? "" : info.name) + "<br><br>전화번호 : " + (info.telephone == null ? "" : info.telephone) + "<br><br>주소 : " + (info.address == null ? "" : info.address) + "<br><br>대표 : " + (info.ceo == null ? "" : info.ceo) + "<br><br>소개 : " + info.introduce + "<br></p></html>");
+		p.setBounds(10, 180, 400, 300);
+		add(p);
+		
+		JButton btnPrev = new JButton("뒤로가기");
+		btnPrev.addActionListener(new MyActionListenerPrev());
+		btnPrev.setBounds(140, 520, 120, 30);
+		add(btnPrev);
+		
+
+	}
+	private class MyActionListenerPrev implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("prev");
+
+			win.change("panelEvent", 0);
+		}
 	}
 }
 /* 행사/축제 정보 */
@@ -186,8 +271,13 @@ class JPanelEvent extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("next");
-				
-			win.change("panelEvent", ++gPageNum);
+			
+			/* 다음 페이지에 내용이 없어도 API 에서 마지막 내용을 리턴함.
+			 * 그래서 최대 2페이지만 보여주도록 강제함 
+			 */
+			if (gPageNum == 1)
+				gPageNum++;
+			win.change("panelEvent", gPageNum);
 		}
 	}
 	
@@ -361,7 +451,6 @@ class JPanelThemeList extends JPanel {
 }
 class JPanelThemeInfo extends JPanel {
 	private JPanelTest win;
-
 	
 	public JPanelThemeInfo(JPanelTest win, int Seq) {
 		ThemeTourInfo data = new ThemeTourInfo();
