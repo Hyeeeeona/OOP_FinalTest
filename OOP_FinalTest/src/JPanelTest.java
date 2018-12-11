@@ -16,14 +16,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-
-
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -36,6 +36,7 @@ public class JPanelTest extends JFrame {
 	public JPanelThemeInfo panelThemeInfo = null;
 	public JPanelEvent panelEvent = null;
 	public JPanelEventInfo panelEventInfo = null;
+	public JPanelSearchRestaurants panelSearchRestaurants = null;
 	static JPanelTest win;
 
 	/* Num is index of page or sequence
@@ -78,6 +79,16 @@ public class JPanelTest extends JFrame {
 			repaint();
 		}
 	}
+
+	public void change(String panelName, String keyword, int opt) {
+		if (panelName.equals("panelSearchRestaurants")) {
+			win.panelSearchRestaurants = new JPanelSearchRestaurants(win, keyword, opt);
+			getContentPane().removeAll();
+			getContentPane().add(panelSearchRestaurants);
+			revalidate();
+			repaint();
+		}
+	}
 	
 	public static void main(String[] args) {
 		win = new JPanelTest();
@@ -114,6 +125,7 @@ class mainPanel extends JPanel {
 			add(btn[i]);
 		}
 		btn[0].addActionListener(new MyActionListenerThemeList());
+		btn[1].addActionListener(new MyActionListenerSearchRestaurants());
 		btn[2].addActionListener(new MyActionListenerEvent());
 
 		// 종료버튼에 대한 설정
@@ -132,6 +144,13 @@ class mainPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("change panel");
 			win.change("panelEvent", 1);
+		}
+	}
+	class MyActionListenerSearchRestaurants implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+	//		System.out.println()
+			win.change("panelSearchRestaurants", "all", 0);
 		}
 	}
 }
@@ -482,6 +501,131 @@ class JPanelThemeInfo extends JPanel {
 			System.out.println("prev");
 
 			win.change("panelThemeList", 0);
+		}
+	}
+}
+
+class JPanelSearchRestaurants extends JPanel {
+	private JPanelTest win;
+	int gPageNum = 1;
+	JTextField textfield = new JTextField();
+	ButtonGroup group = new ButtonGroup();
+	String radio_name[] = {"주소로 검색", "메뉴로 검색"};
+	JRadioButton radio[] = new JRadioButton[radio_name.length];
+
+	public JPanelSearchRestaurants(JPanelTest win, String keyword, int opt) {
+//		ThemeTourInfo data = new ThemeTourInfo();
+//		data = GetOpenAPI.getTourInfo(Seq);
+		Restaurants data = new Restaurants();
+		List<Restaurants> list = new ArrayList<Restaurants>();
+		
+		if (keyword.equals("null")) {
+			list = GetOpenAPI.getRestaurants(gPageNum);
+		} else {
+			list = GetOpenAPI.searchRestaurants(keyword, gPageNum, opt);
+		}
+
+		this.win = win;
+		setLayout(null);
+		
+		textfield.setBounds(15, 10, 300, 50);
+		add(textfield);
+		
+		JButton btn = new JButton("검색");
+		btn.setBounds(315, 10, 70,50);
+		btn.addActionListener(new MyActionListenerSearch());
+		add(btn);
+		
+		int x = 15;
+		for (int i=0; i < radio_name.length; i++) {
+			radio[i] = new JRadioButton(radio_name[i]);
+			radio[i].setBounds(x, 60, 160, 30);
+			x += 170;
+			group.add(radio[i]);
+			add(radio[i]);
+			//System.out.println(radio[i].);
+		}
+		radio[0].setSelected(true);
+		
+		//System.out.println(radio[1].isSelected());
+		
+		/* 버튼 생성 */
+		JButton btnMain = new JButton("메인화면");
+		JButton btnPrev = new JButton("이전");
+		JButton btnNext = new JButton("다음");
+		
+		btnMain.addActionListener(new MyActionListener());
+		btnPrev.addActionListener(new MyActionListenerPrev());
+		btnNext.addActionListener(new MyActionListenerNext());
+		
+		btnMain.setBounds(15, 520, 120, 30);
+		btnPrev.setBounds(140, 520, 120, 30);
+		btnNext.setBounds(265, 520, 120, 30);
+
+		add(btnMain);
+		add(btnPrev);
+		add(btnNext);
+/*
+	//	JLabel title = new JLabel(data.Title);
+	//	JLabel contents = new JLabel(data.Contents);
+	//	JButton btnPrev = new JButton("뒤로가기");
+		
+	//	title.setBounds(10, 10, 300, 20);
+	//	contents.setBounds(10, 20, 300, 200);
+		btnPrev.setBounds(140, 520, 120, 30);
+		contents.setText("<html><p style=\"width:450px\">" + data.Contents + "</p></html>");
+		
+		btnPrev.addActionListener(new MyActionListenerPrev());
+
+		add(title);
+		add(contents);
+		add(btnPrev);
+		*/
+	}
+	
+	private class MyActionListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("change panel");
+			win.change("mainPanel", 0);
+		}
+	}
+	
+	private class MyActionListenerNext implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("next");
+			
+			win.change("panelSearchRestaurants", gPageNum++);
+		}
+	}
+	
+	private class MyActionListenerPrev implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("prev");
+			if (gPageNum > 1)
+				gPageNum--;
+			win.change("panelSerachRestaurants", gPageNum);
+		}
+	}
+	
+	private class MyActionListenerSearch implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println(new Object(){}.getClass().getEnclosingMethod().getName());
+		//	System.out.println("검색어 : " + textfield.getText());
+			//win.change("panaelSearchRestaurants", textfield.getText());
+		//	System.out.println();
+			//group.getSelection().getActionCommand();
+			for (int i=0;i < radio_name.length; i++) {
+				System.out.println(radio[i].isSelected());
+				if (radio[i].isSelected() == true) {
+					win.change("panelSearchRestaurants", textfield.getText(), i);
+					break;
+				}
+			}
+
 		}
 	}
 }
