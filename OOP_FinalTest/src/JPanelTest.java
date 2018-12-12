@@ -1,16 +1,10 @@
-
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,11 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.net.URL;
-import javax.imageio.ImageIO;
-
 public class JPanelTest extends JFrame {
 	public mainPanel mainpn = null;
 	public JPanelThemeList panelThemeList = null;
@@ -46,6 +35,7 @@ public class JPanelTest extends JFrame {
 	/*
 	 * Num is index of page or sequence It means unused value if Num is 0.
 	 */
+	/* TODO: 여기도 정리하고 */
 	public void change(String panelName, int Num) {
 		if (panelName.equals("mainPanel")) {
 			getContentPane().removeAll();
@@ -53,8 +43,6 @@ public class JPanelTest extends JFrame {
 			revalidate();
 			repaint();
 		} else if (panelName.equals("panelThemeList")) {
-			System.out.println("else if pagenum : " + Num);
-			// panelThemeList.pageNum = pageNum;
 			win.panelThemeList = new JPanelThemeList(win);
 			getContentPane().removeAll();
 			getContentPane().add(panelThemeList);
@@ -111,8 +99,6 @@ public class JPanelTest extends JFrame {
 		win.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		win.setSize(400, 600);
 		win.setVisible(true);
-		 GetOpenAPI.getWeather();
-		// EventInfo.getEventInfo(1);
 	}
 
 }
@@ -120,13 +106,14 @@ public class JPanelTest extends JFrame {
 class mainPanel extends JPanel {
 
 	JFrame jFrame = new JFrame("제주여행");
-	JButton[] btn = new JButton[4]; // 6개 생성
+	JButton[] btn = new JButton[4];
 	String btnName[] = { "테마별 코스 추천", "주변 식당 찾기", "제주도 축제 정보", "제주도 날씨"};
 	private JPanelTest win;
 
 	public mainPanel(JPanelTest win) {
 		this.win = win;
 		setLayout(null);
+		
 		// GridLayout 적용
 		setLayout(new GridLayout(2, 2));
 
@@ -135,6 +122,8 @@ class mainPanel extends JPanel {
 			btn[i] = new JButton(btnName[i]);
 			add(btn[i]);
 		}
+		
+		/* TODO: 정리하자ㅜ */
 		btn[0].addActionListener(new MyActionListenerThemeList());
 		btn[1].addActionListener(new MyActionListenerSearchRestaurants());
 		btn[2].addActionListener(new MyActionListenerEvent());
@@ -208,13 +197,7 @@ class JPanelEventInfo extends JPanel {
 		}
 		ImageIcon imgIcon = new ImageIcon(img);
 		JLabel labelImg = new JLabel(imgIcon);
-		/*
-		 * add(labelImg); add(name); add(telephone); add(address); add(ceo);
-		 * add(introduce); labelImg.setBounds(0, 20, 100, 100);
-		 * labelImg.setBackground(Color.BLACK); name.setBounds(10, 300, 400, 50);
-		 * telephone.setBounds(10, 360, 400, 50); address.setBounds(10, 420, 400, 50);
-		 * ceo.setBounds(10, 480, 400, 50); introduce.setBounds(10, 540, 400, 50 );
-		 */
+
 		labelImg.setBounds(0, 20, 400, 150);
 		add(labelImg);
 
@@ -240,8 +223,6 @@ class JPanelEventInfo extends JPanel {
 	private class MyActionListenerPrev implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("prev");
-
 			win.change("panelEvent", 0);
 		}
 	}
@@ -263,7 +244,6 @@ class JPanelEvent extends JPanel {
 			gPageNum--;
 			list = GetOpenAPI.getEventInfo(gPageNum);
 		}
-		System.out.println("Event Page num : " + gPageNum);
 		this.win = win;
 		setLayout(null);
 
@@ -300,7 +280,6 @@ class JPanelEvent extends JPanel {
 	private class MyActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("change panel");
 			win.change("mainPanel", 0);
 		}
 	}
@@ -308,7 +287,6 @@ class JPanelEvent extends JPanel {
 	private class MyActionListenerNext implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("next");
 
 			/*
 			 * 다음 페이지에 내용이 없어도 API 에서 마지막 내용을 리턴함. 그래서 최대 2페이지만 보여주도록 강제함
@@ -322,7 +300,6 @@ class JPanelEvent extends JPanel {
 	private class MyActionListenerPrev implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("prev");
 			if (gPageNum > 1)
 				gPageNum--;
 			win.change("panelEvent", gPageNum);
@@ -338,7 +315,6 @@ class JPanelEvent extends JPanel {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			System.out.println("click");
 			win.change("panelEventInfo", info);
 		}
 
@@ -384,7 +360,6 @@ class JPanelThemeList extends JPanel {
 			gPageNum--;
 			list = GetOpenAPI.getTourList(gPageNum);
 		}
-		System.out.println("size : " + list.size());
 
 		this.win = win;
 		setLayout(null);
@@ -393,7 +368,6 @@ class JPanelThemeList extends JPanel {
 		Iterator<ThemeTourList> it = list.iterator();
 		while (it.hasNext()) {
 			data = it.next();
-			System.out.println(data.Title);
 			JLabel label = new JLabel(data.Title);
 			label.setBounds(20, y, 300, 20);
 			label.addMouseListener(new printTourInfo(data.Seq));
@@ -418,14 +392,11 @@ class JPanelThemeList extends JPanel {
 		add(btnMain);
 		add(btnPrev);
 		add(btnNext);
-
-		// gPageNum++;
 	}
 
 	private class MyActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("change panel");
 			gPageNum = 1;
 			win.change("mainPanel", 0);
 		}
@@ -434,8 +405,6 @@ class JPanelThemeList extends JPanel {
 	private class MyActionListenerNext implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("next");
-
 			win.change("panelThemeList", ++gPageNum);
 		}
 	}
@@ -443,7 +412,6 @@ class JPanelThemeList extends JPanel {
 	private class MyActionListenerPrev implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("prev");
 			if (gPageNum > 1)
 				gPageNum--;
 			win.change("panelThemeList", gPageNum);
@@ -501,16 +469,14 @@ class JPanelThemeInfo extends JPanel {
 		this.win = win;
 		setLayout(null);
 
-//		data.Contents.replace("\n", "<br>");
-
 		JLabel title = new JLabel(data.Title);
 		JLabel contents = new JLabel(data.Contents);
 		JButton btnPrev = new JButton("뒤로가기");
 
 		title.setBounds(10, 10, 300, 20);
-		contents.setBounds(10, 20, 300, 200);
+		contents.setBounds(10, 20, 400, 200);
 		btnPrev.setBounds(140, 520, 120, 30);
-		contents.setText("<html><p style=\"width:450px\">" + data.Contents + "</p></html>");
+		contents.setText("<html><p style=\"width:400px\">" + data.Contents + "</p></html>");
 
 		btnPrev.addActionListener(new MyActionListenerPrev());
 
@@ -589,19 +555,6 @@ class JPanelSearchRestaurants extends JPanel {
 		add(btnMain);
 		add(btnPrev);
 		add(btnNext);
-		/*
-		 * // JLabel title = new JLabel(data.Title); // JLabel contents = new
-		 * JLabel(data.Contents); // JButton btnPrev = new JButton("뒤로가기");
-		 * 
-		 * // title.setBounds(10, 10, 300, 20); // contents.setBounds(10, 20, 300, 200);
-		 * btnPrev.setBounds(140, 520, 120, 30);
-		 * contents.setText("<html><p style=\"width:450px\">" + data.Contents +
-		 * "</p></html>");
-		 * 
-		 * btnPrev.addActionListener(new MyActionListenerPrev());
-		 * 
-		 * add(title); add(contents); add(btnPrev);
-		 */
 	}
 
 	private class MyActionListener implements ActionListener {
@@ -636,10 +589,7 @@ class JPanelSearchRestaurants extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println(new Object() {
 			}.getClass().getEnclosingMethod().getName());
-			// System.out.println("검색어 : " + textfield.getText());
-			// win.change("panaelSearchRestaurants", textfield.getText());
-			// System.out.println();
-			// group.getSelection().getActionCommand();
+
 			for (int i = 0; i < radio_name.length; i++) {
 				System.out.println(radio[i].isSelected());
 				if (radio[i].isSelected() == true) {
@@ -657,10 +607,6 @@ class JPanelWeather extends JPanel {
 	int gPageNum = 1;
 
 	public JPanelWeather(JPanelTest win) {
-//		ThemeTourInfo data = new ThemeTourInfo();
-//		data = GetOpenAPI.getTourInfo(Seq);
-		// Restaurants data = new Restaurants();
-		// List<Restaurants> list = new ArrayList<Restaurants>();
 		Weather data[] = new Weather[4];
 		data = GetOpenAPI.getWeather();
 
@@ -670,7 +616,6 @@ class JPanelWeather extends JPanel {
 		JLabel label[] = new JLabel[4];
 		int hour = 3;
 		int x = 0;
-		int weightX = 399;
 		for (int i = 0; i <label.length; i++) {
 			label[i] = new JLabel();
 			if (i == 0) {
@@ -683,17 +628,10 @@ class JPanelWeather extends JPanel {
 				hour +=3;
 				label[i].setBounds(x, 200, 133, 200);
 				x+= 133;
-				weightX -= 133;
-
 			}
 			add(label[i]);
 
 		}
-
-	//	label3.setBounds(133, 185, 266, 185);
-	//	label4.setBounds(266, 185, 133, 185);
-
-	
 
 		/* 버튼 생성 */
 		JButton btnMain = new JButton("메인화면");
@@ -703,19 +641,6 @@ class JPanelWeather extends JPanel {
 		btnMain.setBounds(140, 500, 120, 30);
 
 		add(btnMain);
-		/*
-		 * // JLabel title = new JLabel(data.Title); // JLabel contents = new
-		 * JLabel(data.Contents); // JButton btnPrev = new JButton("뒤로가기");
-		 * 
-		 * // title.setBounds(10, 10, 300, 20); // contents.setBounds(10, 20, 300, 200);
-		 * btnPrev.setBounds(140, 520, 120, 30);
-		 * contents.setText("<html><p style=\"width:450px\">" + data.Contents +
-		 * "</p></html>");
-		 * 
-		 * btnPrev.addActionListener(new MyActionListenerPrev());
-		 * 
-		 * add(title); add(contents); add(btnPrev);
-		 */
 	}
 	private class MyActionListener implements ActionListener {
 		@Override
@@ -725,15 +650,4 @@ class JPanelWeather extends JPanel {
 		}
 	}
 
-	private void addGrid(GridBagLayout gbl, GridBagConstraints gbc, Component c, int gridx, int gridy, int gridwidth,
-			int gridheight, int weightx, int weighty) {
-		gbc.gridx = gridx;
-		gbc.gridy = gridy;
-		gbc.gridwidth = gridwidth;
-		gbc.gridheight = gridheight;
-		gbc.weightx = weightx;
-		gbc.weighty = weighty;
-		gbl.setConstraints(c, gbc);
-		add(c);
-	}
 }
