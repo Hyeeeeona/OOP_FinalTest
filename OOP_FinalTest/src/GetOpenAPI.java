@@ -202,8 +202,6 @@ public class GetOpenAPI {
 					System.out.println("area : " + data.area);
 					System.out.println("menu : " + data.menu);
 					System.out.println("telephone : " + data.telephone);
-
-					list.add(data);
 				} // for end
 			} // if end }catch(Exception e){ System.out.println(e.getMessage());
 
@@ -287,5 +285,120 @@ public class GetOpenAPI {
 			}
 		}
 		return list;
+	}
+
+	public static Weather[] getWeather() {
+		// String[] list = new String[10];
+		// EventInfo list[] = new EventInfo[10];
+		List<Weather> list = new ArrayList<Weather>();
+		// int pageNum = 1;
+		Weather data[] = new Weather[4];
+
+		try {
+			String urlstr = "http://api.openweathermap.org/data/2.5/weather?q=jeju&appid=394332de5333ced44096aa2f2932fb42&mode=xml";
+
+			DocumentBuilderFactory dbFactoty = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactoty.newDocumentBuilder();
+			Document doc = dBuilder.parse(urlstr);
+			// root tag doc.getDocumentElement().normalize();
+
+			NodeList nList = doc.getElementsByTagName("current");
+			System.out.println("파싱할 리스트 수 : " + nList.getLength()); // 파싱할 리스트 수 : 5
+
+			if (nList.getLength() == 0)
+				return data;
+
+			Node nNode = nList.item(0);
+			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+				data[0] = new Weather();
+
+				Element eElement = (Element) nNode;
+				System.out.println("######################");
+
+				NodeList subList = eElement.getElementsByTagName("temperature");
+				Element subEl = (Element) subList.item(0);
+				data[0].temp = (String.format("%.1f", (Double.parseDouble(subEl.getAttributes().getNamedItem("value").getNodeValue()) - 273.15))) + "℃";
+
+				//data[0].temp = Double.parseDouble(subEl.getAttributes().getNamedItem("value").getNodeValue());
+				subList = eElement.getElementsByTagName("humidity");
+				subEl = (Element) subList.item(0);
+
+				data[0].humidity = Integer.parseInt(subEl.getAttributes().getNamedItem("value").getNodeValue());
+				subList = eElement.getElementsByTagName("clouds");
+				subEl = (Element) subList.item(0);
+
+				data[0].cloud = subEl.getAttributes().getNamedItem("value").getNodeValue() + "%";
+				subList = eElement.getElementsByTagName("weather");
+				subEl = (Element) subList.item(0);
+				data[0].icon = subEl.getAttributes().getNamedItem("icon").getNodeValue();
+
+				System.out.println("temperature : " + data[0].temp);
+				System.out.println("humidity : " + data[0].humidity);
+				System.out.println("cloud : " + data[0].cloud);
+				System.out.println("icon : " + data[0].icon);
+
+			} // for end
+				// if end }catch(Exception e){ System.out.println(e.getMessage());
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+
+		}
+
+		try {
+			String urlstr = "http://api.openweathermap.org/data/2.5/forecast?q=jeju&appid=394332de5333ced44096aa2f2932fb42&mode=xml";
+
+			DocumentBuilderFactory dbFactoty = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactoty.newDocumentBuilder();
+			Document doc = dBuilder.parse(urlstr);
+			// root tag doc.getDocumentElement().normalize();
+
+			NodeList nList = doc.getElementsByTagName("time");
+			System.out.println("파싱할 리스트 수 : " + nList.getLength()); // 파싱할 리스트 수 : 5
+
+			if (nList.getLength() == 0)
+				return data;
+
+			/* 3시간 뒤, 6시간 뒤, 9시간 뒤의 날씨 데이터를 가져온다 */
+			for (int i = 0; i < 3; i++) {
+				Node nNode = nList.item(i);
+				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+					data[i+1] = new Weather();
+
+					Element eElement = (Element) nNode;
+					System.out.println("######################");
+
+					NodeList subList = eElement.getElementsByTagName("temperature");
+					Element subEl = (Element) subList.item(0);
+					data[i+1].temp = (String.format("%.1f", (Double.parseDouble(subEl.getAttributes().getNamedItem("value").getNodeValue()) - 273.15))) + "℃";
+					
+					subList = eElement.getElementsByTagName("humidity");
+					subEl = (Element) subList.item(0);
+					data[i+1].humidity = Integer.parseInt(subEl.getAttributes().getNamedItem("value").getNodeValue());
+					
+					subList = eElement.getElementsByTagName("clouds");
+					subEl = (Element) subList.item(0);
+					data[i+1].cloud = subEl.getAttributes().getNamedItem("value").getNodeValue() + "%";
+					
+					subList = eElement.getElementsByTagName("symbol");
+					subEl = (Element) subList.item(0);
+					data[i+1].main = subEl.getAttributes().getNamedItem("name").getNodeValue();
+
+					System.out.println("temperature : " + data[i+1].temp);
+					System.out.println("humidity : " + data[i+1].humidity);
+					System.out.println("cloud : " + data[i+1].cloud);
+					System.out.println("main : " + data[i+1].main);
+
+				} // for end
+					// if end }catch(Exception e){ System.out.println(e.getMessage());
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+
+		}
+
+		return data;
 	}
 }

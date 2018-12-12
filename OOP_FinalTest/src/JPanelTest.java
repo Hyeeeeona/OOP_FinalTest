@@ -1,5 +1,8 @@
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -37,10 +40,12 @@ public class JPanelTest extends JFrame {
 	public JPanelEvent panelEvent = null;
 	public JPanelEventInfo panelEventInfo = null;
 	public JPanelSearchRestaurants panelSearchRestaurants = null;
+	public JPanelWeather panelWeather = null;
 	static JPanelTest win;
 
-	/* Num is index of page or sequence
-	 * It means unused value if Num is 0. */
+	/*
+	 * Num is index of page or sequence It means unused value if Num is 0.
+	 */
 	public void change(String panelName, int Num) {
 		if (panelName.equals("mainPanel")) {
 			getContentPane().removeAll();
@@ -49,7 +54,7 @@ public class JPanelTest extends JFrame {
 			repaint();
 		} else if (panelName.equals("panelThemeList")) {
 			System.out.println("else if pagenum : " + Num);
-			//panelThemeList.pageNum = pageNum;
+			// panelThemeList.pageNum = pageNum;
 			win.panelThemeList = new JPanelThemeList(win);
 			getContentPane().removeAll();
 			getContentPane().add(panelThemeList);
@@ -61,15 +66,21 @@ public class JPanelTest extends JFrame {
 			getContentPane().add(panelThemeInfo);
 			revalidate();
 			repaint();
-		} if (panelName.equals("panelEvent")) {
+		} else if (panelName.equals("panelEvent")) {
 			win.panelEvent = new JPanelEvent(win);
 			getContentPane().removeAll();
 			getContentPane().add(panelEvent);
 			revalidate();
 			repaint();
-		} 
+		} else if (panelName.equals("panelWeather")) {
+			win.panelWeather = new JPanelWeather(win);
+			getContentPane().removeAll();
+			getContentPane().add(panelWeather);
+			revalidate();
+			repaint();
+		}
 	}
-	
+
 	public void change(String panelName, EventInfo info) {
 		if (panelName.equals("panelEventInfo")) {
 			win.panelEventInfo = new JPanelEventInfo(win, info);
@@ -89,10 +100,10 @@ public class JPanelTest extends JFrame {
 			repaint();
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		win = new JPanelTest();
-		
+
 		win.setTitle("frame test");
 		win.mainpn = new mainPanel(win);
 
@@ -100,24 +111,24 @@ public class JPanelTest extends JFrame {
 		win.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		win.setSize(400, 600);
 		win.setVisible(true);
-		
+		 GetOpenAPI.getWeather();
 		// EventInfo.getEventInfo(1);
 	}
-	
+
 }
 
 class mainPanel extends JPanel {
 
 	JFrame jFrame = new JFrame("제주여행");
-	JButton[] btn = new JButton[6]; // 6개 생성
-	String btnName[] = { "테마별 코스 추천", "주변 식당 찾기", "제주도 축제 정보", "제주도 날씨", "미정","미정"};
+	JButton[] btn = new JButton[4]; // 6개 생성
+	String btnName[] = { "테마별 코스 추천", "주변 식당 찾기", "제주도 축제 정보", "제주도 날씨"};
 	private JPanelTest win;
 
 	public mainPanel(JPanelTest win) {
 		this.win = win;
 		setLayout(null);
 		// GridLayout 적용
-		setLayout(new GridLayout(3, 2));
+		setLayout(new GridLayout(2, 2));
 
 		// 컴포넌트 생성 및 추가하기
 		for (int i = 0; i < btn.length; i++) {
@@ -127,6 +138,7 @@ class mainPanel extends JPanel {
 		btn[0].addActionListener(new MyActionListenerThemeList());
 		btn[1].addActionListener(new MyActionListenerSearchRestaurants());
 		btn[2].addActionListener(new MyActionListenerEvent());
+		btn[3].addActionListener(new MyActionListenerWeather());
 
 		// 종료버튼에 대한 설정
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -139,6 +151,7 @@ class mainPanel extends JPanel {
 			win.change("panelThemeList", 1);
 		}
 	}
+
 	class MyActionListenerEvent implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -146,11 +159,20 @@ class mainPanel extends JPanel {
 			win.change("panelEvent", 1);
 		}
 	}
-	class MyActionListenerSearchRestaurants implements ActionListener {
+
+	private class MyActionListenerSearchRestaurants implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-	//		System.out.println()
+			// System.out.println()
 			win.change("panelSearchRestaurants", "all", 0);
+		}
+	}
+	
+	private class MyActionListenerWeather implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// System.out.println()
+			win.change("panelWeather", 0);
 		}
 	}
 }
@@ -161,14 +183,14 @@ class JPanelEventInfo extends JPanel {
 	public JPanelEventInfo(JPanelTest win, EventInfo info) {
 		this.win = win;
 		setLayout(null);
-		
+
 		JLabel name = new JLabel(info.name);
 		JLabel introduce = new JLabel("소개 : " + info.introduce);
 		JLabel telephone = new JLabel("전화번호 : " + info.telephone);
 		JLabel address = new JLabel("주소 : " + info.address);
 		JLabel category = new JLabel(info.category);
 		JLabel ceo = new JLabel("대표 : " + info.ceo);
-		
+
 		System.out.println(info.name + " " + info.introduce + " ");
 		System.out.println(info.imgUrl);
 		Image img = null;
@@ -187,38 +209,34 @@ class JPanelEventInfo extends JPanel {
 		ImageIcon imgIcon = new ImageIcon(img);
 		JLabel labelImg = new JLabel(imgIcon);
 		/*
-		add(labelImg);
-		add(name);
-		add(telephone);
-		add(address);
-		add(ceo);
-		add(introduce);
-		labelImg.setBounds(0, 20, 100, 100);
-		labelImg.setBackground(Color.BLACK);
-		name.setBounds(10, 300, 400, 50);
-		telephone.setBounds(10, 360, 400, 50);
-		address.setBounds(10, 420, 400, 50);
-		ceo.setBounds(10, 480, 400, 50);
-		introduce.setBounds(10, 540, 400, 50 );
-		*/
+		 * add(labelImg); add(name); add(telephone); add(address); add(ceo);
+		 * add(introduce); labelImg.setBounds(0, 20, 100, 100);
+		 * labelImg.setBackground(Color.BLACK); name.setBounds(10, 300, 400, 50);
+		 * telephone.setBounds(10, 360, 400, 50); address.setBounds(10, 420, 400, 50);
+		 * ceo.setBounds(10, 480, 400, 50); introduce.setBounds(10, 540, 400, 50 );
+		 */
 		labelImg.setBounds(0, 20, 400, 150);
 		add(labelImg);
 
-		introduce.setText("<html><p style=\"width:300px\">" + (info.introduce == null ? "" : info.introduce) + "</p></html>");
+		introduce.setText(
+				"<html><p style=\"width:300px\">" + (info.introduce == null ? "" : info.introduce) + "</p></html>");
 
 		JLabel p = new JLabel();
-		
-		p.setText("<html><p style=\"width:300px\"><br>" + (info.name == null ? "" : info.name) + "<br><br>전화번호 : " + (info.telephone == null ? "" : info.telephone) + "<br><br>주소 : " + (info.address == null ? "" : info.address) + "<br><br>대표 : " + (info.ceo == null ? "" : info.ceo) + "<br><br>소개 : " + info.introduce + "<br></p></html>");
+
+		p.setText("<html><p style=\"width:300px\"><br>" + (info.name == null ? "" : info.name) + "<br><br>전화번호 : "
+				+ (info.telephone == null ? "" : info.telephone) + "<br><br>주소 : "
+				+ (info.address == null ? "" : info.address) + "<br><br>대표 : " + (info.ceo == null ? "" : info.ceo)
+				+ "<br><br>소개 : " + info.introduce + "<br></p></html>");
 		p.setBounds(10, 180, 400, 300);
 		add(p);
-		
+
 		JButton btnPrev = new JButton("뒤로가기");
 		btnPrev.addActionListener(new MyActionListenerPrev());
 		btnPrev.setBounds(140, 520, 120, 30);
 		add(btnPrev);
-		
 
 	}
+
 	private class MyActionListenerPrev implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -228,13 +246,14 @@ class JPanelEventInfo extends JPanel {
 		}
 	}
 }
+
 /* 행사/축제 정보 */
 class JPanelEvent extends JPanel {
 	private JPanelTest win;
 	static int gPageNum = 1;
-	
+
 	public JPanelEvent(JPanelTest win) {
-		int y=30;
+		int y = 30;
 		EventInfo data = new EventInfo();
 		List<EventInfo> list = new ArrayList<EventInfo>();
 		list = GetOpenAPI.getEventInfo(gPageNum);
@@ -247,10 +266,10 @@ class JPanelEvent extends JPanel {
 		System.out.println("Event Page num : " + gPageNum);
 		this.win = win;
 		setLayout(null);
-		
+
 		Iterator<EventInfo> it = list.iterator();
 
-		while(it.hasNext()) {
+		while (it.hasNext()) {
 			data = it.next();
 			JLabel label = new JLabel(data.name);
 			label.setBounds(20, y, 300, 20);
@@ -258,16 +277,16 @@ class JPanelEvent extends JPanel {
 			add(label);
 			y += 45;
 		}
-		
+
 		/* 버튼 생성 */
 		JButton btnMain = new JButton("메인화면");
 		JButton btnPrev = new JButton("이전");
 		JButton btnNext = new JButton("다음");
-		
+
 		btnMain.addActionListener(new MyActionListener());
 		btnPrev.addActionListener(new MyActionListenerPrev());
 		btnNext.addActionListener(new MyActionListenerNext());
-		
+
 		btnMain.setBounds(15, 520, 120, 30);
 		btnPrev.setBounds(140, 520, 120, 30);
 		btnNext.setBounds(265, 520, 120, 30);
@@ -275,9 +294,9 @@ class JPanelEvent extends JPanel {
 		add(btnMain);
 		add(btnPrev);
 		add(btnNext);
-		
+
 	}
-	
+
 	private class MyActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -285,21 +304,21 @@ class JPanelEvent extends JPanel {
 			win.change("mainPanel", 0);
 		}
 	}
-	
+
 	private class MyActionListenerNext implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("next");
-			
-			/* 다음 페이지에 내용이 없어도 API 에서 마지막 내용을 리턴함.
-			 * 그래서 최대 2페이지만 보여주도록 강제함 
+
+			/*
+			 * 다음 페이지에 내용이 없어도 API 에서 마지막 내용을 리턴함. 그래서 최대 2페이지만 보여주도록 강제함
 			 */
 			if (gPageNum == 1)
 				gPageNum++;
 			win.change("panelEvent", gPageNum);
 		}
 	}
-	
+
 	private class MyActionListenerPrev implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -309,43 +328,44 @@ class JPanelEvent extends JPanel {
 			win.change("panelEvent", gPageNum);
 		}
 	}
-	
-	private class printEventInfo implements MouseListener{
-		 EventInfo info;
-		 
-		 public printEventInfo(EventInfo info) {
-			 this.info = info;
-		 }
-		 @Override
-		 public void mouseClicked(MouseEvent e){
-			 System.out.println("click");
-			 win.change("panelEventInfo", info);
-		 }
+
+	private class printEventInfo implements MouseListener {
+		EventInfo info;
+
+		public printEventInfo(EventInfo info) {
+			this.info = info;
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			System.out.println("click");
+			win.change("panelEventInfo", info);
+		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void mouseExited(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
-	 }
+	}
 }
 
 /* 테마별 투어 정보 */
@@ -354,11 +374,11 @@ class JPanelThemeList extends JPanel {
 	static int gPageNum = 1;
 
 	public JPanelThemeList(JPanelTest win) {
-		int y=30;
+		int y = 30;
 		ThemeTourList data = new ThemeTourList();
 		List<ThemeTourList> list = new ArrayList<ThemeTourList>();
 		list = GetOpenAPI.getTourList(gPageNum);
-		
+
 		/* 다음 목록이 없을 경우 이전 페이지 호출 */
 		if (list.size() == 0) {
 			gPageNum--;
@@ -368,29 +388,29 @@ class JPanelThemeList extends JPanel {
 
 		this.win = win;
 		setLayout(null);
-		
+
 		/* 리스트 출력 */
 		Iterator<ThemeTourList> it = list.iterator();
-		while(it.hasNext()) {
+		while (it.hasNext()) {
 			data = it.next();
 			System.out.println(data.Title);
 			JLabel label = new JLabel(data.Title);
 			label.setBounds(20, y, 300, 20);
 			label.addMouseListener(new printTourInfo(data.Seq));
-			//label.addMouseListener(l);
+			// label.addMouseListener(l);
 			add(label);
 			y += 45;
 		}
-		
+
 		/* 버튼 생성 */
 		JButton btnMain = new JButton("메인화면");
 		JButton btnPrev = new JButton("이전");
 		JButton btnNext = new JButton("다음");
-		
+
 		btnMain.addActionListener(new MyActionListener());
 		btnPrev.addActionListener(new MyActionListenerPrev());
 		btnNext.addActionListener(new MyActionListenerNext());
-		
+
 		btnMain.setBounds(15, 520, 120, 30);
 		btnPrev.setBounds(140, 520, 120, 30);
 		btnNext.setBounds(265, 520, 120, 30);
@@ -398,9 +418,10 @@ class JPanelThemeList extends JPanel {
 		add(btnMain);
 		add(btnPrev);
 		add(btnNext);
-		
-		//gPageNum++;
+
+		// gPageNum++;
 	}
+
 	private class MyActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -409,16 +430,16 @@ class JPanelThemeList extends JPanel {
 			win.change("mainPanel", 0);
 		}
 	}
-	
+
 	private class MyActionListenerNext implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("next");
-				
+
 			win.change("panelThemeList", ++gPageNum);
 		}
 	}
-	
+
 	private class MyActionListenerPrev implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -428,73 +449,76 @@ class JPanelThemeList extends JPanel {
 			win.change("panelThemeList", gPageNum);
 		}
 	}
-	
-	 class printTourInfo implements MouseListener{
-		 String Seq;
-		 
-		 public printTourInfo(String Seq) {
-			 this.Seq = Seq;
-		 }
-		 @Override
-		 public void mouseClicked(MouseEvent e){
-			 System.out.println("click");
-			 System.out.println(e);
-			 System.out.println(Seq);
-			 win.change("panelThemeInfo", Integer.parseInt(Seq));
-		 }
+
+	class printTourInfo implements MouseListener {
+		String Seq;
+
+		public printTourInfo(String Seq) {
+			this.Seq = Seq;
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			System.out.println("click");
+			System.out.println(e);
+			System.out.println(Seq);
+			win.change("panelThemeInfo", Integer.parseInt(Seq));
+		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void mouseExited(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
-	 }
+	}
 }
+
 class JPanelThemeInfo extends JPanel {
 	private JPanelTest win;
-	
+
 	public JPanelThemeInfo(JPanelTest win, int Seq) {
 		ThemeTourInfo data = new ThemeTourInfo();
 		data = GetOpenAPI.getTourInfo(Seq);
 
 		this.win = win;
 		setLayout(null);
-		
+
 //		data.Contents.replace("\n", "<br>");
-		
+
 		JLabel title = new JLabel(data.Title);
 		JLabel contents = new JLabel(data.Contents);
 		JButton btnPrev = new JButton("뒤로가기");
-		
+
 		title.setBounds(10, 10, 300, 20);
 		contents.setBounds(10, 20, 300, 200);
 		btnPrev.setBounds(140, 520, 120, 30);
 		contents.setText("<html><p style=\"width:450px\">" + data.Contents + "</p></html>");
-		
+
 		btnPrev.addActionListener(new MyActionListenerPrev());
 
 		add(title);
 		add(contents);
 		add(btnPrev);
 	}
+
 	private class MyActionListenerPrev implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -510,7 +534,7 @@ class JPanelSearchRestaurants extends JPanel {
 	int gPageNum = 1;
 	JTextField textfield = new JTextField();
 	ButtonGroup group = new ButtonGroup();
-	String radio_name[] = {"주소로 검색", "메뉴로 검색"};
+	String radio_name[] = { "주소로 검색", "메뉴로 검색" };
 	JRadioButton radio[] = new JRadioButton[radio_name.length];
 
 	public JPanelSearchRestaurants(JPanelTest win, String keyword, int opt) {
@@ -518,7 +542,7 @@ class JPanelSearchRestaurants extends JPanel {
 //		data = GetOpenAPI.getTourInfo(Seq);
 		Restaurants data = new Restaurants();
 		List<Restaurants> list = new ArrayList<Restaurants>();
-		
+
 		if (keyword.equals("null")) {
 			list = GetOpenAPI.getRestaurants(gPageNum);
 		} else {
@@ -527,37 +551,37 @@ class JPanelSearchRestaurants extends JPanel {
 
 		this.win = win;
 		setLayout(null);
-		
+
 		textfield.setBounds(15, 10, 300, 50);
 		add(textfield);
-		
+
 		JButton btn = new JButton("검색");
-		btn.setBounds(315, 10, 70,50);
+		btn.setBounds(315, 10, 70, 50);
 		btn.addActionListener(new MyActionListenerSearch());
 		add(btn);
-		
+
 		int x = 15;
-		for (int i=0; i < radio_name.length; i++) {
+		for (int i = 0; i < radio_name.length; i++) {
 			radio[i] = new JRadioButton(radio_name[i]);
 			radio[i].setBounds(x, 60, 160, 30);
 			x += 170;
 			group.add(radio[i]);
 			add(radio[i]);
-			//System.out.println(radio[i].);
+			// System.out.println(radio[i].);
 		}
 		radio[0].setSelected(true);
-		
-		//System.out.println(radio[1].isSelected());
-		
+
+		// System.out.println(radio[1].isSelected());
+
 		/* 버튼 생성 */
 		JButton btnMain = new JButton("메인화면");
 		JButton btnPrev = new JButton("이전");
 		JButton btnNext = new JButton("다음");
-		
+
 		btnMain.addActionListener(new MyActionListener());
 		btnPrev.addActionListener(new MyActionListenerPrev());
 		btnNext.addActionListener(new MyActionListenerNext());
-		
+
 		btnMain.setBounds(15, 520, 120, 30);
 		btnPrev.setBounds(140, 520, 120, 30);
 		btnNext.setBounds(265, 520, 120, 30);
@@ -565,24 +589,21 @@ class JPanelSearchRestaurants extends JPanel {
 		add(btnMain);
 		add(btnPrev);
 		add(btnNext);
-/*
-	//	JLabel title = new JLabel(data.Title);
-	//	JLabel contents = new JLabel(data.Contents);
-	//	JButton btnPrev = new JButton("뒤로가기");
-		
-	//	title.setBounds(10, 10, 300, 20);
-	//	contents.setBounds(10, 20, 300, 200);
-		btnPrev.setBounds(140, 520, 120, 30);
-		contents.setText("<html><p style=\"width:450px\">" + data.Contents + "</p></html>");
-		
-		btnPrev.addActionListener(new MyActionListenerPrev());
-
-		add(title);
-		add(contents);
-		add(btnPrev);
-		*/
+		/*
+		 * // JLabel title = new JLabel(data.Title); // JLabel contents = new
+		 * JLabel(data.Contents); // JButton btnPrev = new JButton("뒤로가기");
+		 * 
+		 * // title.setBounds(10, 10, 300, 20); // contents.setBounds(10, 20, 300, 200);
+		 * btnPrev.setBounds(140, 520, 120, 30);
+		 * contents.setText("<html><p style=\"width:450px\">" + data.Contents +
+		 * "</p></html>");
+		 * 
+		 * btnPrev.addActionListener(new MyActionListenerPrev());
+		 * 
+		 * add(title); add(contents); add(btnPrev);
+		 */
 	}
-	
+
 	private class MyActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -590,16 +611,16 @@ class JPanelSearchRestaurants extends JPanel {
 			win.change("mainPanel", 0);
 		}
 	}
-	
+
 	private class MyActionListenerNext implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("next");
-			
+
 			win.change("panelSearchRestaurants", gPageNum++);
 		}
 	}
-	
+
 	private class MyActionListenerPrev implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -609,16 +630,17 @@ class JPanelSearchRestaurants extends JPanel {
 			win.change("panelSerachRestaurants", gPageNum);
 		}
 	}
-	
+
 	private class MyActionListenerSearch implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println(new Object(){}.getClass().getEnclosingMethod().getName());
-		//	System.out.println("검색어 : " + textfield.getText());
-			//win.change("panaelSearchRestaurants", textfield.getText());
-		//	System.out.println();
-			//group.getSelection().getActionCommand();
-			for (int i=0;i < radio_name.length; i++) {
+			System.out.println(new Object() {
+			}.getClass().getEnclosingMethod().getName());
+			// System.out.println("검색어 : " + textfield.getText());
+			// win.change("panaelSearchRestaurants", textfield.getText());
+			// System.out.println();
+			// group.getSelection().getActionCommand();
+			for (int i = 0; i < radio_name.length; i++) {
 				System.out.println(radio[i].isSelected());
 				if (radio[i].isSelected() == true) {
 					win.change("panelSearchRestaurants", textfield.getText(), i);
@@ -627,5 +649,91 @@ class JPanelSearchRestaurants extends JPanel {
 			}
 
 		}
+	}
+}
+
+class JPanelWeather extends JPanel {
+	private JPanelTest win;
+	int gPageNum = 1;
+
+	public JPanelWeather(JPanelTest win) {
+//		ThemeTourInfo data = new ThemeTourInfo();
+//		data = GetOpenAPI.getTourInfo(Seq);
+		// Restaurants data = new Restaurants();
+		// List<Restaurants> list = new ArrayList<Restaurants>();
+		Weather data[] = new Weather[4];
+		data = GetOpenAPI.getWeather();
+
+		this.win = win;
+		setLayout(null);
+		
+		JLabel label[] = new JLabel[4];
+		int hour = 3;
+		int x = 0;
+		int weightX = 399;
+		for (int i = 0; i <label.length; i++) {
+			label[i] = new JLabel();
+			if (i == 0) {
+				label[i].setText("<html><center><p style=\"width:300px\">현재 날씨<br>온도 : " + data[i].temp + "<br>습도 : " + data[i].humidity
+						+ "%<br>구름 : " + data[i].cloud + "</p></center></html>");
+				label[i].setBounds(0, 20, 400, 200);
+			} else {
+				label[i].setText("<html><center><p style=\"width:100px\">" + hour + "시간 후 날씨<br>" +data[i].main + "<br>온도 : " + data[i].temp + "<br>습도 : " + data[i].humidity
+						 + "%</p></center></html>");
+				hour +=3;
+				label[i].setBounds(x, 200, 133, 200);
+				x+= 133;
+				weightX -= 133;
+
+			}
+			add(label[i]);
+
+		}
+
+	//	label3.setBounds(133, 185, 266, 185);
+	//	label4.setBounds(266, 185, 133, 185);
+
+	
+
+		/* 버튼 생성 */
+		JButton btnMain = new JButton("메인화면");
+
+		btnMain.addActionListener(new MyActionListener());
+
+		btnMain.setBounds(140, 500, 120, 30);
+
+		add(btnMain);
+		/*
+		 * // JLabel title = new JLabel(data.Title); // JLabel contents = new
+		 * JLabel(data.Contents); // JButton btnPrev = new JButton("뒤로가기");
+		 * 
+		 * // title.setBounds(10, 10, 300, 20); // contents.setBounds(10, 20, 300, 200);
+		 * btnPrev.setBounds(140, 520, 120, 30);
+		 * contents.setText("<html><p style=\"width:450px\">" + data.Contents +
+		 * "</p></html>");
+		 * 
+		 * btnPrev.addActionListener(new MyActionListenerPrev());
+		 * 
+		 * add(title); add(contents); add(btnPrev);
+		 */
+	}
+	private class MyActionListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("change panel");
+			win.change("mainPanel", 0);
+		}
+	}
+
+	private void addGrid(GridBagLayout gbl, GridBagConstraints gbc, Component c, int gridx, int gridy, int gridwidth,
+			int gridheight, int weightx, int weighty) {
+		gbc.gridx = gridx;
+		gbc.gridy = gridy;
+		gbc.gridwidth = gridwidth;
+		gbc.gridheight = gridheight;
+		gbc.weightx = weightx;
+		gbc.weighty = weighty;
+		gbl.setConstraints(c, gbc);
+		add(c);
 	}
 }
