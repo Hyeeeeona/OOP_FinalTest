@@ -31,24 +31,24 @@ public class JPanelTest extends JFrame {
 	public JPanelSearchRestaurants panelSearchRestaurants = null;
 	public JPanelWeather panelWeather = null;
 	static JPanelTest win;
-	public static String[] PanelNameList = {"mainPanel", "panelThemeList", "panelThemeInfo", "panelEvent", "panelWeather"};
+	public static String[] PanelNameList = { "mainPanel", "panelThemeList", "panelThemeInfo", "panelEvent",
+			"panelWeather" };
 	public static int PanelCount = PanelNameList.length;
 	public static JPanel JPanelList[] = new JPanel[PanelCount];
-		
 
 	/*
 	 * Num is index of page or sequence It means unused value if Num is 0.
 	 */
 	/* TODO: 여기도 정리하고 */
 	public void change(String panelName, int Num) {
-		
+
 		if (panelName.equals("mainPanel")) {
 			getContentPane().removeAll();
 			getContentPane().add(mainpn);
 			revalidate();
 			repaint();
 		} else if (panelName.equals("panelThemeList")) {
-			win.panelThemeList = new JPanelThemeList(win);
+			win.panelThemeList = new JPanelThemeList(win, "null");
 			getContentPane().removeAll();
 			getContentPane().add(panelThemeList);
 			revalidate();
@@ -84,6 +84,16 @@ public class JPanelTest extends JFrame {
 		}
 	}
 
+	public void change(String panelName, String keyword) {
+		if (panelName.equals("panelSearchThemeList")) {
+			win.panelThemeList = new JPanelThemeList(win, keyword);
+			getContentPane().removeAll();
+			getContentPane().add(panelThemeList);
+			revalidate();
+			repaint();
+		}
+	}
+
 	public void change(String panelName, String keyword, int opt) {
 		if (panelName.equals("panelSearchRestaurants")) {
 			win.panelSearchRestaurants = new JPanelSearchRestaurants(win, keyword, opt);
@@ -91,21 +101,28 @@ public class JPanelTest extends JFrame {
 			getContentPane().add(panelSearchRestaurants);
 			revalidate();
 			repaint();
+		} else if (panelName.equals("panelThemeList")) {
+			win.panelThemeList = new JPanelThemeList(win, keyword);
+			getContentPane().removeAll();
+			getContentPane().add(panelThemeList);
+			revalidate();
+			repaint();
 		}
+
 	}
 
 	public static void main(String[] args) {
 		win = new JPanelTest();
 
-		win.setTitle("frame test");
+		win.setTitle("제주관광 도우미");
 		win.mainpn = new mainPanel(win);
 
 		win.add(win.mainpn);
 		win.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		win.setSize(400, 600);
 		win.setVisible(true);
-		
-		JPanelList[0]=new mainPanel(win);
+
+		JPanelList[0] = new mainPanel(win);
 	}
 
 }
@@ -113,28 +130,28 @@ public class JPanelTest extends JFrame {
 class mainPanel extends JPanel {
 
 	JFrame jFrame = new JFrame("제주여행");
-	JButton[] btn = new JButton[4];
-	String btnName[] = { "테마별 코스 추천", "주변 식당 찾기", "제주도 축제 정보", "제주도 날씨"};
+	JButton[] btn = new JButton[3];
+	String btnName[] = { "테마별 코스 추천", "제주도 행사 정보", "제주도 날씨" };
 	private JPanelTest win;
 
 	public mainPanel(JPanelTest win) {
 		this.win = win;
 		setLayout(null);
-		
+
 		// GridLayout 적용
-		setLayout(new GridLayout(2, 2));
+		setLayout(new GridLayout(3, 1));
 
 		// 컴포넌트 생성 및 추가하기
 		for (int i = 0; i < btn.length; i++) {
 			btn[i] = new JButton(btnName[i]);
 			add(btn[i]);
 		}
-		
+
 		/* TODO: 정리하자ㅜ */
 		btn[0].addActionListener(new MyActionListenerThemeList());
-		btn[1].addActionListener(new MyActionListenerSearchRestaurants());
-		btn[2].addActionListener(new MyActionListenerEvent());
-		btn[3].addActionListener(new MyActionListenerWeather());
+		// btn[1].addActionListener(new MyActionListenerSearchRestaurants());
+		btn[1].addActionListener(new MyActionListenerEvent());
+		btn[2].addActionListener(new MyActionListenerWeather());
 
 		// 종료버튼에 대한 설정
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -163,7 +180,7 @@ class mainPanel extends JPanel {
 			win.change("panelSearchRestaurants", "all", 0);
 		}
 	}
-	
+
 	private class MyActionListenerWeather implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -179,17 +196,17 @@ class JPanelEventInfo extends JPanel {
 	public JPanelEventInfo(JPanelTest win, EventInfo info) {
 		this.win = win;
 		setLayout(null);
-		
+
 		JLabel name = new JLabel(info.name);
 		JLabel introduce = new JLabel("소개 : " + info.introduce);
 		JLabel telephone = new JLabel("전화번호 : " + info.telephone);
 		JLabel address = new JLabel("주소 : " + info.address);
 		JLabel category = new JLabel(info.category);
 		JLabel ceo = new JLabel("대표 : " + info.ceo);
-		
+
 		System.out.println(info.name + " " + info.introduce + " ");
 		System.out.println(info.imgUrl);
-		
+
 		Image img = null;
 		URL url;
 		try {
@@ -356,13 +373,25 @@ class JPanelEvent extends JPanel {
 class JPanelThemeList extends JPanel {
 	private JPanelTest win;
 	static int gPageNum = 1;
+	JTextField textfield = new JTextField();
+	static String prevKeyword;
 
-	public JPanelThemeList(JPanelTest win) {
-		int y = 30;
+	public JPanelThemeList(JPanelTest win, String keyword) {
+		int y = 70;
 		ThemeTourList data = new ThemeTourList();
-	//	List<ThemeTourList> list = new ArrayList<ThemeTourList>();
+		// List<ThemeTourList> list = new ArrayList<ThemeTourList>();
 		List<Service> list = new ArrayList<Service>();
-		list = data.getInfo(gPageNum);
+
+		if (keyword.equals("null") || keyword.equals("")) {
+			list = data.getInfo(gPageNum);
+		} else {
+			gPageNum = 1;
+			if (keyword.equals("prev"))
+				keyword = prevKeyword;
+			list = data.searchTheme(keyword, gPageNum);
+		}
+		
+		prevKeyword = keyword;
 
 		/* 다음 목록이 없을 경우 이전 페이지 호출 */
 		if (list.size() == 0) {
@@ -372,6 +401,14 @@ class JPanelThemeList extends JPanel {
 
 		this.win = win;
 		setLayout(null);
+
+		textfield.setBounds(15, 10, 300, 50);
+		add(textfield);
+
+		JButton btn = new JButton("검색");
+		btn.setBounds(315, 10, 70, 50);
+		btn.addActionListener(new MyActionListenerSearch());
+		add(btn);
 
 		/* 리스트 출력 */
 		Iterator<Service> it = list.iterator();
@@ -414,7 +451,8 @@ class JPanelThemeList extends JPanel {
 	private class MyActionListenerNext implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			win.change("panelThemeList", ++gPageNum);
+			gPageNum += 1;
+			win.change("panelThemeList", prevKeyword, gPageNum);
 		}
 	}
 
@@ -423,7 +461,7 @@ class JPanelThemeList extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			if (gPageNum > 1)
 				gPageNum--;
-			win.change("panelThemeList", gPageNum);
+			win.change("panelThemeList", prevKeyword, gPageNum);
 		}
 	}
 
@@ -466,6 +504,13 @@ class JPanelThemeList extends JPanel {
 
 		}
 	}
+
+	private class MyActionListenerSearch implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			win.change("panelSearchThemeList", textfield.getText());
+		}
+	}
 }
 
 class JPanelThemeInfo extends JPanel {
@@ -473,7 +518,7 @@ class JPanelThemeInfo extends JPanel {
 
 	public JPanelThemeInfo(JPanelTest win, int Seq) {
 		ThemeTourInfo data = new ThemeTourInfo(Seq);
-		//data = data.getTourInfo(Seq);
+		// data = data.getTourInfo(Seq);
 
 		this.win = win;
 		setLayout(null);
@@ -499,7 +544,7 @@ class JPanelThemeInfo extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("prev");
 
-			win.change("panelThemeList", 0);
+			win.change("panelThemeList", "prev", 0);
 		}
 	}
 }
@@ -567,7 +612,6 @@ class JPanelSearchRestaurants extends JPanel {
 	private class MyActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("change panel");
 			win.change("mainPanel", 0);
 		}
 	}
@@ -620,30 +664,30 @@ class JPanelWeather extends JPanel {
 
 		this.win = win;
 		setLayout(null);
-		
+
 		JLabel label[] = new JLabel[4];
 		int hour = 3;
 		int x = 0;
-		
-		int i=0;
+
+		int i = 0;
 		Iterator<Service> it = list.iterator();
 		while (it.hasNext()) {
 			data = (Weather) it.next();
-			
+
 			label[i] = new JLabel();
 			if (i == 0) {
-				label[i].setText("<html><center><p style=\"width:300px\">현재 날씨<br>온도 : " + data.temp + "<br>습도 : " + data.humidity
-						+ "%<br>구름 : " + data.cloud + "</p></center></html>");
+				label[i].setText("<html><center><p style=\"width:300px\">현재 날씨<br>온도 : " + data.temp + "<br>습도 : "
+						+ data.humidity + "%<br>구름 : " + data.cloud + "</p></center></html>");
 				label[i].setBounds(0, 20, 400, 200);
 			} else {
-				label[i].setText("<html><center><p style=\"width:100px\">" + hour + "시간 후 날씨<br>" +data.main + "<br>온도 : " + data.temp + "<br>습도 : " + data.humidity
-						 + "%</p></center></html>");
-				hour +=3;
+				label[i].setText("<html><center><p style=\"width:100px\">" + hour + "시간 후 날씨<br>" + data.main
+						+ "<br>온도 : " + data.temp + "<br>습도 : " + data.humidity + "%</p></center></html>");
+				hour += 3;
 				label[i].setBounds(x, 200, 133, 200);
-				x+= 133;
+				x += 133;
 			}
 			add(label[i]);
-			
+
 			i++;
 		}
 
@@ -656,6 +700,7 @@ class JPanelWeather extends JPanel {
 
 		add(btnMain);
 	}
+
 	private class MyActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {

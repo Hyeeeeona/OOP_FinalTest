@@ -99,7 +99,7 @@ public class GetOpenAPI {
 
 						data_cnt++;
 
-						/* page가 2일 경우 검색된 데이터 중 11~20에 해당하는 리스트만 넘겨주도록 함. */
+						/* ex) page가 2일 경우 검색된 데이터 중 11~20에 해당하는 리스트만 넘겨주도록 함. */
 						if (data_cnt > ((pageNum - 1) * 10) && data_cnt <= (pageNum * 10)) {
 							data.address = getTagValue("FAddr", eElement);
 							data.area = getTagValue("FSi", eElement);
