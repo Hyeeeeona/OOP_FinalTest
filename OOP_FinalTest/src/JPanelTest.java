@@ -24,18 +24,18 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 public class JPanelTest extends JFrame {
-	public mainPanel mainpn = null;
-	public JPanelThemeList panelThemeList = null;
-	public JPanelThemeInfo panelThemeInfo = null;
-	public JPanelEvent panelEvent = null;
-	public JPanelEventInfo panelEventInfo = null;
-	public JPanelSearchRestaurants panelSearchRestaurants = null;
-	public JPanelWeather panelWeather = null;
-	static JPanelTest win;
-	public static String[] PanelNameList = { "mainPanel", "panelThemeList", "panelThemeInfo", "panelEvent",
+	private mainPanel mainpn = null;
+	private JPanelThemeList panelThemeList = null;
+	private JPanelThemeInfo panelThemeInfo = null;
+	private JPanelEvent panelEvent = null;
+	private JPanelEventInfo panelEventInfo = null;
+	private JPanelSearchRestaurants panelSearchRestaurants = null;
+	private JPanelWeather panelWeather = null;
+	private static JPanelTest win;
+	private static String[] PanelNameList = { "mainPanel", "panelThemeList", "panelThemeInfo", "panelEvent",
 			"panelWeather" };
-	public static int PanelCount = PanelNameList.length;
-	public static JPanel JPanelList[] = new JPanel[PanelCount];
+	private static int PanelCount = PanelNameList.length;
+	private static JPanel JPanelList[] = new JPanel[PanelCount];
 
 	/*
 	 * Num is index of page or sequence It means unused value if Num is 0.

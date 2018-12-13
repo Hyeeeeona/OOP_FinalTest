@@ -3,7 +3,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class Service {
-	public static String getTagValue(String tag, Element eElement) {
+	protected static String getTagValue(String tag, Element eElement) {
 		NodeList nlList = eElement.getElementsByTagName(tag).item(0).getChildNodes();
 		Node nValue = (Node) nlList.item(0);
 		if (nValue == null)
