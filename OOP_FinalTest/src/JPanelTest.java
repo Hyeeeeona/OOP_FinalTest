@@ -479,13 +479,13 @@ class JPanelThemeInfo extends JPanel {
 		setLayout(null);
 
 		JLabel title = new JLabel(data.Title);
-		JLabel contents = new JLabel(data.Contents);
+		JLabel contents = new JLabel();
 		JButton btnPrev = new JButton("뒤로가기");
 
-		title.setBounds(10, 10, 300, 20);
-		contents.setBounds(10, 20, 400, 200);
+		title.setBounds(20, 20, 400, 30);
+		contents.setBounds(20, 50, 400, 500);
 		btnPrev.setBounds(140, 520, 120, 30);
-		contents.setText("<html><p style=\"width:400px\">" + data.Contents + "</p></html>");
+		contents.setText("<html><p style=\"width:350\">" + data.Contents + "</p></html>");
 
 		btnPrev.addActionListener(new MyActionListenerPrev());
 
