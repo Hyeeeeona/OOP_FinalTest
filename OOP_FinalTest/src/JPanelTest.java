@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -377,12 +378,14 @@ class JPanelThemeList extends JPanel {
 	static String prevKeyword;
 
 	public JPanelThemeList(JPanelTest win, String keyword) {
-		int y = 70;
+		int y = 80;
 		ThemeTourList data = new ThemeTourList();
 		// List<ThemeTourList> list = new ArrayList<ThemeTourList>();
 		List<Service> list = new ArrayList<Service>();
 
 		if (keyword.equals("null") || keyword.equals("")) {
+			list = data.getInfo(gPageNum);
+		} else if (keyword.equals("prev") && (prevKeyword.equals("null") || prevKeyword.equals("") || prevKeyword.equals("prev"))) {
 			list = data.getInfo(gPageNum);
 		} else {
 			gPageNum = 1;
@@ -409,6 +412,10 @@ class JPanelThemeList extends JPanel {
 		btn.setBounds(315, 10, 70, 50);
 		btn.addActionListener(new MyActionListenerSearch());
 		add(btn);
+		
+		JLabel label1 = new JLabel("한글만 입력가능합니다. 텍스트필드를 비운상태로 검색할 경우 초기화됩니다.");
+		label1.setBounds(10, 50, 400, 30);
+		add(label1);
 
 		/* 리스트 출력 */
 		Iterator<Service> it = list.iterator();
@@ -474,9 +481,6 @@ class JPanelThemeList extends JPanel {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			System.out.println("click");
-			System.out.println(e);
-			System.out.println(Seq);
 			win.change("panelThemeInfo", Integer.parseInt(Seq));
 		}
 
@@ -508,6 +512,11 @@ class JPanelThemeList extends JPanel {
 	private class MyActionListenerSearch implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (Pattern.matches(".*[a-zA-Z].*", textfield.getText()) == true) {
+				textfield.setText("");
+				win.change("panelThemeList", prevKeyword, gPageNum);
+				return;
+			}
 			win.change("panelSearchThemeList", textfield.getText());
 		}
 	}
@@ -542,8 +551,6 @@ class JPanelThemeInfo extends JPanel {
 	private class MyActionListenerPrev implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("prev");
-
 			win.change("panelThemeList", "prev", 0);
 		}
 	}
