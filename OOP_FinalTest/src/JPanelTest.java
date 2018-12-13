@@ -31,12 +31,17 @@ public class JPanelTest extends JFrame {
 	public JPanelSearchRestaurants panelSearchRestaurants = null;
 	public JPanelWeather panelWeather = null;
 	static JPanelTest win;
+	public static String[] PanelNameList = {"mainPanel", "panelThemeList", "panelThemeInfo", "panelEvent", "panelWeather"};
+	public static int PanelCount = PanelNameList.length;
+	public static JPanel JPanelList[] = new JPanel[PanelCount];
+		
 
 	/*
 	 * Num is index of page or sequence It means unused value if Num is 0.
 	 */
 	/* TODO: 여기도 정리하고 */
 	public void change(String panelName, int Num) {
+		
 		if (panelName.equals("mainPanel")) {
 			getContentPane().removeAll();
 			getContentPane().add(mainpn);
@@ -99,6 +104,8 @@ public class JPanelTest extends JFrame {
 		win.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		win.setSize(400, 600);
 		win.setVisible(true);
+		
+		JPanelList[0]=new mainPanel(win);
 	}
 
 }
@@ -172,16 +179,17 @@ class JPanelEventInfo extends JPanel {
 	public JPanelEventInfo(JPanelTest win, EventInfo info) {
 		this.win = win;
 		setLayout(null);
-
+		
 		JLabel name = new JLabel(info.name);
 		JLabel introduce = new JLabel("소개 : " + info.introduce);
 		JLabel telephone = new JLabel("전화번호 : " + info.telephone);
 		JLabel address = new JLabel("주소 : " + info.address);
 		JLabel category = new JLabel(info.category);
 		JLabel ceo = new JLabel("대표 : " + info.ceo);
-
+		
 		System.out.println(info.name + " " + info.introduce + " ");
 		System.out.println(info.imgUrl);
+		
 		Image img = null;
 		URL url;
 		try {
@@ -236,21 +244,21 @@ class JPanelEvent extends JPanel {
 	public JPanelEvent(JPanelTest win) {
 		int y = 30;
 		EventInfo data = new EventInfo();
-		List<EventInfo> list = new ArrayList<EventInfo>();
-		list = GetOpenAPI.getEventInfo(gPageNum);
+		List<Service> list = new ArrayList<Service>();
+		list = data.getInfo(gPageNum);
 
 		/* 다음 목록이 없을 경우 이전 페이지 호출 */
 		if (list.size() == 0) {
 			gPageNum--;
-			list = GetOpenAPI.getEventInfo(gPageNum);
+			list = data.getInfo(gPageNum);
 		}
 		this.win = win;
 		setLayout(null);
 
-		Iterator<EventInfo> it = list.iterator();
+		Iterator<Service> it = list.iterator();
 
 		while (it.hasNext()) {
-			data = it.next();
+			data = (EventInfo) it.next();
 			JLabel label = new JLabel(data.name);
 			label.setBounds(20, y, 300, 20);
 			label.addMouseListener(new printEventInfo(data));
@@ -352,22 +360,23 @@ class JPanelThemeList extends JPanel {
 	public JPanelThemeList(JPanelTest win) {
 		int y = 30;
 		ThemeTourList data = new ThemeTourList();
-		List<ThemeTourList> list = new ArrayList<ThemeTourList>();
-		list = GetOpenAPI.getTourList(gPageNum);
+	//	List<ThemeTourList> list = new ArrayList<ThemeTourList>();
+		List<Service> list = new ArrayList<Service>();
+		list = data.getInfo(gPageNum);
 
 		/* 다음 목록이 없을 경우 이전 페이지 호출 */
 		if (list.size() == 0) {
 			gPageNum--;
-			list = GetOpenAPI.getTourList(gPageNum);
+			list = data.getInfo(gPageNum);
 		}
 
 		this.win = win;
 		setLayout(null);
 
 		/* 리스트 출력 */
-		Iterator<ThemeTourList> it = list.iterator();
+		Iterator<Service> it = list.iterator();
 		while (it.hasNext()) {
-			data = it.next();
+			data = (ThemeTourList) it.next();
 			JLabel label = new JLabel(data.Title);
 			label.setBounds(20, y, 300, 20);
 			label.addMouseListener(new printTourInfo(data.Seq));
@@ -418,7 +427,7 @@ class JPanelThemeList extends JPanel {
 		}
 	}
 
-	class printTourInfo implements MouseListener {
+	private class printTourInfo implements MouseListener {
 		String Seq;
 
 		public printTourInfo(String Seq) {
@@ -463,8 +472,8 @@ class JPanelThemeInfo extends JPanel {
 	private JPanelTest win;
 
 	public JPanelThemeInfo(JPanelTest win, int Seq) {
-		ThemeTourInfo data = new ThemeTourInfo();
-		data = GetOpenAPI.getTourInfo(Seq);
+		ThemeTourInfo data = new ThemeTourInfo(Seq);
+		//data = data.getTourInfo(Seq);
 
 		this.win = win;
 		setLayout(null);
@@ -504,8 +513,6 @@ class JPanelSearchRestaurants extends JPanel {
 	JRadioButton radio[] = new JRadioButton[radio_name.length];
 
 	public JPanelSearchRestaurants(JPanelTest win, String keyword, int opt) {
-//		ThemeTourInfo data = new ThemeTourInfo();
-//		data = GetOpenAPI.getTourInfo(Seq);
 		Restaurants data = new Restaurants();
 		List<Restaurants> list = new ArrayList<Restaurants>();
 
@@ -607,8 +614,9 @@ class JPanelWeather extends JPanel {
 	int gPageNum = 1;
 
 	public JPanelWeather(JPanelTest win) {
-		Weather data[] = new Weather[4];
-		data = GetOpenAPI.getWeather();
+		List<Service> list = new ArrayList<Service>();
+		Weather data = new Weather();
+		list = data.getInfo();
 
 		this.win = win;
 		setLayout(null);
@@ -616,21 +624,27 @@ class JPanelWeather extends JPanel {
 		JLabel label[] = new JLabel[4];
 		int hour = 3;
 		int x = 0;
-		for (int i = 0; i <label.length; i++) {
+		
+		int i=0;
+		Iterator<Service> it = list.iterator();
+		while (it.hasNext()) {
+			data = (Weather) it.next();
+			
 			label[i] = new JLabel();
 			if (i == 0) {
-				label[i].setText("<html><center><p style=\"width:300px\">현재 날씨<br>온도 : " + data[i].temp + "<br>습도 : " + data[i].humidity
-						+ "%<br>구름 : " + data[i].cloud + "</p></center></html>");
+				label[i].setText("<html><center><p style=\"width:300px\">현재 날씨<br>온도 : " + data.temp + "<br>습도 : " + data.humidity
+						+ "%<br>구름 : " + data.cloud + "</p></center></html>");
 				label[i].setBounds(0, 20, 400, 200);
 			} else {
-				label[i].setText("<html><center><p style=\"width:100px\">" + hour + "시간 후 날씨<br>" +data[i].main + "<br>온도 : " + data[i].temp + "<br>습도 : " + data[i].humidity
+				label[i].setText("<html><center><p style=\"width:100px\">" + hour + "시간 후 날씨<br>" +data.main + "<br>온도 : " + data.temp + "<br>습도 : " + data.humidity
 						 + "%</p></center></html>");
 				hour +=3;
 				label[i].setBounds(x, 200, 133, 200);
 				x+= 133;
 			}
 			add(label[i]);
-
+			
+			i++;
 		}
 
 		/* 버튼 생성 */
